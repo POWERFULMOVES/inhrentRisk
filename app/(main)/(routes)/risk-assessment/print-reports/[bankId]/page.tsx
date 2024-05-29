@@ -54,7 +54,7 @@ const page = ({
       } :  ${codeAnalysis.comments.replaceAll("\n", "")}`;
     }
 
-    const res = await axios.post("http://localhost:3000/api/ai/printout", {
+    const res = await axios.post("http://localhost:3000/api/ai/interface_printout", {
       prompt: create_print_out_prompt(codeAnalysisData, bankName),
       bankName: bankName,
     });

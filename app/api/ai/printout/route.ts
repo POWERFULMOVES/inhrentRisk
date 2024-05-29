@@ -2,8 +2,6 @@ import { create_print_out_prompt } from "@/models/prompt_structure";
 import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
-import { jsPDF } from "jspdf";
-import PDFKit from "pdfkit";
 
 export async function POST(req: NextRequest) {
   try {
@@ -46,9 +44,29 @@ export async function POST(req: NextRequest) {
     // doc.end();
     // console.log(data);
 
-    return NextResponse.json({ response });
+    const r = NextResponse.json({ response });
+    r.headers.set("Access-Control-Allow-Origin", "http://localhost:3001");
+    r.headers.set("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+    r.headers.set(
+      "Access-Control-Allow-Headers",
+      "Content-Type, Authorization"
+    );
+
+    return r;
   } catch (error) {
     console.log(error);
     return NextResponse.json(null);
   }
 }
+
+export const OPTIONS = () => {
+  const response = NextResponse.json({});
+  response.headers.set("Access-Control-Allow-Origin", "http://localhost:3001");
+  response.headers.set("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+  response.headers.set(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Authorization"
+  );
+
+  return response;
+};

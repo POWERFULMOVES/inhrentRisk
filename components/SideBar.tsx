@@ -63,38 +63,37 @@ const SideBar = ({ bankId }: { bankId: string | undefined }) => {
 
   if (!isMounted) return null;
 
-  if (bank?.status === "files_uploaded") {
-    return (
-      <Sheet>
-        <SheetTrigger asChild>
-          <Button variant="ghost" size="icon">
-            <Menu />
-          </Button>
-        </SheetTrigger>
-        <SheetContent
-          side="left"
-          className="dark:bg-black bg-white overflow-auto"
-        >
-          <div className="flex flex-col  w-[300px] ">
-            <Link href="/">
-              <div className="w-full  text-4xl font-bold flex items-center text-center justify-start ml-10 my-10 text-purple-900 ">
-                {bankName.toUpperCase()}
-              </div>
-            </Link>
+  return (
+    <Sheet>
+      <SheetTrigger asChild>
+        <Button variant="ghost" size="icon">
+          <Menu />
+        </Button>
+      </SheetTrigger>
+      <SheetContent
+        side="left"
+        className="dark:bg-black bg-white overflow-auto"
+      >
+        <div className="flex flex-col  w-[300px] ">
+          <Link href="/">
+            <div className="w-full  text-4xl font-bold flex items-center text-center justify-start ml-10 my-10 text-purple-900 ">
+              {bankName.toUpperCase()}
+            </div>
+          </Link>
 
-            <Link
-              href="/dashboard"
-              className={`${
-                pathname === "/dashboard" ? "bg-gray-900" : ""
-              } hover:bg-gray-800`}
-            >
-              <div className="flex gap-x-3 items-center h-12 w-full justify-start ml-10 ">
-                <LayoutDashboardIcon />
-                <h1 className="text-xl ">Dashboard</h1>
-              </div>
-            </Link>
+          <Link
+            href="/dashboard"
+            className={`${
+              pathname === "/dashboard" ? "bg-gray-900" : ""
+            } hover:bg-gray-800`}
+          >
+            <div className="flex gap-x-3 items-center h-12 w-full justify-start ml-10 ">
+              <LayoutDashboardIcon />
+              <h1 className="text-xl ">Dashboard</h1>
+            </div>
+          </Link>
 
-            {/* <div className="hover:bg-gray-800">
+          {/* <div className="hover:bg-gray-800">
               <div
                 onClick={() => setLookup((prev) => !prev)}
                 className="flex gap-x-3 items-center h-12  justify-start ml-10 z-2 "
@@ -187,18 +186,18 @@ const SideBar = ({ bankId }: { bankId: string | undefined }) => {
               )}
             </div> */}
 
-            <div className="hover:bg-gray-800">
-              <div
-                onClick={() => setCodes((prev) => !prev)}
-                className="flex gap-x-3 items-center h-12  justify-start ml-10 z-2"
-              >
-                <Star />
-                <h1 className="text-xl ">Codes</h1>
-                {codes ? <ChevronUp /> : <ChevronDown />}
-              </div>
-              {codes && (
-                <ul className="w-full flex flex-col items-start  bg-white  dark:bg-black py-3 z-10">
-                  {/* <li
+          <div className="hover:bg-gray-800">
+            <div
+              onClick={() => setCodes((prev) => !prev)}
+              className="flex gap-x-3 items-center h-12  justify-start ml-10 z-2"
+            >
+              <Star />
+              <h1 className="text-xl ">Codes</h1>
+              {codes ? <ChevronUp /> : <ChevronDown />}
+            </div>
+            {codes && (
+              <ul className="w-full flex flex-col items-start  bg-white  dark:bg-black py-3 z-10">
+                {/* <li
                     className={`
                     ${
                       pathname === "/codes/manage-codes" ? "bg-gray-900" : ""
@@ -210,33 +209,33 @@ const SideBar = ({ bankId }: { bankId: string | undefined }) => {
                       Manage Codes
                     </Link>
                   </li> */}
-                  <li
-                    className={`
+                <li
+                  className={`
                     ${
                       pathname === "/codes/add-manage-codes"
                         ? "bg-gray-900"
                         : ""
                     } w-full text-md hover:bg-gray-800
                   `}
-                  >
-                    <Link href="/codes/add-manage-codes" className="ml-14">
-                      Add & Manage Codes
-                    </Link>
-                  </li>
-                  <li
-                    className={`
+                >
+                  <Link href="/codes/add-manage-codes" className="ml-14">
+                    Add & Manage Codes
+                  </Link>
+                </li>
+                <li
+                  className={`
                     ${
                       pathname === "/codes/risk-analysis-of-code"
                         ? "bg-gray-900"
                         : ""
                     } w-full text-md hover:bg-gray-800
                   `}
-                  >
-                    <Link href="/codes/risk-analysis-of-code" className="ml-14">
-                      Risk Analysis of code
-                    </Link>
-                  </li>
-                  {/* <li
+                >
+                  <Link href="/codes/risk-analysis-of-code" className="ml-14">
+                    Risk Analysis of code
+                  </Link>
+                </li>
+                {/* <li
                     className={`
                     ${
                       pathname === "/customers/customer-risk-factor"
@@ -252,7 +251,7 @@ const SideBar = ({ bankId }: { bankId: string | undefined }) => {
                       Customer Risk Factor
                     </Link>
                   </li> */}
-                  {/* <li
+                {/* <li
                     className={`
                     ${
                       pathname === "/customers/customer-risk-factor-list"
@@ -268,49 +267,49 @@ const SideBar = ({ bankId }: { bankId: string | undefined }) => {
                       Customer Risk Factors List
                     </Link>
                   </li> */}
-                </ul>
-              )}
+              </ul>
+            )}
+          </div>
+
+          <div className="hover:bg-gray-800">
+            <div
+              onClick={() => setRiskAssessment((prev) => !prev)}
+              className="flex gap-x-3 items-center h-12  justify-start ml-10 z-2"
+            >
+              <Star />
+              <h1 className="text-xl ">Risk Assessment Ai</h1>
+              {riskAssessment ? <ChevronUp /> : <ChevronDown />}
             </div>
 
-            <div className="hover:bg-gray-800">
-              <div
-                onClick={() => setRiskAssessment((prev) => !prev)}
-                className="flex gap-x-3 items-center h-12  justify-start ml-10 z-2"
-              >
-                <Star />
-                <h1 className="text-xl ">Risk Assessment Ai</h1>
-                {riskAssessment ? <ChevronUp /> : <ChevronDown />}
-              </div>
-
-              {riskAssessment && (
-                <ul className="w-full flex flex-col items-start  bg-white  dark:bg-black py-3 z-10">
-                  <li
-                    className={`
+            {riskAssessment && (
+              <ul className="w-full flex flex-col items-start  bg-white  dark:bg-black py-3 z-10">
+                <li
+                  className={`
                     ${
                       pathname === "/risk-assessment/bsa-ra"
                         ? "bg-gray-900"
                         : ""
                     } w-full text-lg hover:bg-gray-800
                   `}
-                  >
-                    <Link href="/risk-assessment/bsa-ra" className="ml-14">
-                      BSA-RA
-                    </Link>
-                  </li>
-                  <li
-                    className={`
+                >
+                  <Link href="/risk-assessment/bsa-ra" className="ml-14">
+                    BSA-RA
+                  </Link>
+                </li>
+                <li
+                  className={`
                     ${
                       pathname === "/risk-assessment/train-model"
                         ? "bg-gray-900"
                         : ""
                     } w-full text-lg hover:bg-gray-800
                   `}
-                  >
-                    <Link href="/risk-assessment/train-model" className="ml-14">
-                      Train Model
-                    </Link>
-                  </li>
-                  {/* <li
+                >
+                  <Link href="/risk-assessment/train-model" className="ml-14">
+                    Train Model
+                  </Link>
+                </li>
+                {/* <li
                     className={`
                     ${
                       pathname === "/risk-assessment/ofac-ra" ? "bg-gray-900" : ""
@@ -321,7 +320,7 @@ const SideBar = ({ bankId }: { bankId: string | undefined }) => {
                       OFAC-RA
                     </Link>
                   </li> */}
-                  {/* <li
+                {/* <li
                     className={`
                     ${
                       pathname === "/risk-assessment/bsa-risk-matrix"
@@ -337,7 +336,7 @@ const SideBar = ({ bankId }: { bankId: string | undefined }) => {
                       BSA Risk Matrix
                     </Link>
                   </li> */}
-                  {/* <li
+                {/* <li
                     className={`
                     ${
                       pathname === "/risk-assessment/ofac-risk-matrix"
@@ -353,30 +352,26 @@ const SideBar = ({ bankId }: { bankId: string | undefined }) => {
                       OFAC Risk Matrix
                     </Link>
                   </li> */}
-                  <li
-                    className={`
+                <li
+                  className={`
                     ${
                       pathname === "/risk-assessment/print-reports"
                         ? "bg-gray-900"
                         : ""
                     } w-full text-lg hover:bg-gray-800
                   `}
-                  >
-                    <Link
-                      href="/risk-assessment/print-reports"
-                      className="ml-14"
-                    >
-                      Print Reports
-                    </Link>
-                  </li>
-                </ul>
-              )}
-            </div>
+                >
+                  <Link href="/risk-assessment/print-reports" className="ml-14">
+                    Print Reports
+                  </Link>
+                </li>
+              </ul>
+            )}
           </div>
-        </SheetContent>
-      </Sheet>
-    );
-  } else return null;
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
 };
 
 export default SideBar;

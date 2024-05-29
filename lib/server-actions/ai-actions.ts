@@ -11,7 +11,7 @@ async function processFilesSequentially(
   let analysis = "";
   for (const file of files) {
     try {
-      const res = await axios.post("http://localhost:3000/api/ai/testing", {
+      const res = await axios.post("http://localhost:3000/api/ai/interface_testing", {
         model: `${file}:latest`,
         code: code,
         previous_analysis: previous_analysis ? previous_analysis : null,
