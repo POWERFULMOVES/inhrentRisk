@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/form";
 import { assesment, bank, code, codeAnalyses, codes, subcode } from "@/types";
 import axios from "axios";
-import { ArrowUpDown, Loader2, Router } from "lucide-react";
+import { ArrowUpDown, Cone, Loader2, Router } from "lucide-react";
 import queryString from "query-string";
 import {
   cbCode,
@@ -122,6 +122,11 @@ const RiskAssementForm = ({
   const [message, setMessage] = useState("");
   const router = useRouter();
 
+  const [selectedRows, setSelectedRows] = useState<string[]>([]);
+  const [lowRiskSub, setLowRiskSub] = useState<string>("");
+  const [moderateRiskSub, setModerateRiskSub] = useState<string>("");
+  const [highRiskSub, setHighRiskSub] = useState<string>("");
+
   const [banksData, setBanksData] = useState<bank | {}>({});
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -191,43 +196,54 @@ const RiskAssementForm = ({
       getAnalysis(bankId, code).then((res) => {
         console.log(res);
         setMessage(`✅${code.code} code Analysis Complete`);
-        const assessment: assesment = {
-          code: code.code,
-          comments: res.reasoning ? res.reasoning : "",
-          documentUsedForAnalysis: res.documentUsedForAnalysis
-            ? res.documentUsedForAnalysis
-            : "",
-          inherentRiskCategory: res.inherentRiskCategory
-            ? res.inherentRiskCategory
-            : "",
-          inherentRiskScore: res.inherentRiskScore
-            ? parseInt(res.inherentRiskScore)
-            : 0,
-          mitigatingControl: res.mitigatingControl ? res.mitigatingControl : "",
-          mitigatingControlScore: res.mitigatingControlScore
-            ? parseInt(res.mitigatingControlScore)
-            : 0,
-          residualRiskCategory: res.residualRiskCategory
-            ? res.residualRiskCategory
-            : "",
-          residualRiskScore: res.residualRiskScore
-            ? parseInt(res.residualRiskScore)
-            : 0,
-          bankId: bankId,
-        };
-        addCodeAnalysis(assessment).then((res) => {
-          setMessage("Analysis Saved ☑️...");
-          toast({
-            title: "Uploaded Code Analysis",
-            description: `${code.code} Code Analysis Successfully Done.`,
+        if (
+          res.inherentRiskScore &&
+          res.residualRiskScore &&
+          res.mitigatingControlScore
+        ) {
+          const assessment: assesment = {
+            code: code.code,
+            comments: res.reasoning ? res.reasoning : "",
+            documentUsedForAnalysis: res.documentUsedForAnalysis
+              ? res.documentUsedForAnalysis
+              : "",
+            inherentRiskCategory: res.inherentRiskCategory
+              ? res.inherentRiskCategory
+              : "",
+            inherentRiskScore: res.inherentRiskScore
+              ? parseInt(res.inherentRiskScore)
+              : 0,
+            mitigatingControl: res.mitigatingControl
+              ? res.mitigatingControl
+              : "",
+            mitigatingControlScore: res.mitigatingControlScore
+              ? parseInt(res.mitigatingControlScore)
+              : 0,
+            residualRiskCategory: res.residualRiskCategory
+              ? res.residualRiskCategory
+              : "",
+            residualRiskScore: res.residualRiskScore
+              ? parseInt(res.residualRiskScore)
+              : 0,
+            bankId: bankId,
+          };
+          addCodeAnalysis(assessment).then((res) => {
+            setMessage("Analysis Saved ☑️...");
+            toast({
+              title: "Uploaded Code Analysis",
+              description: `${code.code} Code Analysis Successfully Done.`,
+            });
+            setIsProcessing(false);
+            getBankData();
+            router.refresh();
           });
-          setIsProcessing(false);
-          getBankData();
-          router.refresh();
+        }
+        toast({
+          title: "Nework Error occured during analysis",
+          description: `${code.code} Code Analysis Incomplete, Kindly perform the analysis again .`,
         });
       });
     }
-    
   };
 
   const getBankData = async () => {
@@ -241,8 +257,7 @@ const RiskAssementForm = ({
     console.log(response);
     setBanksData(response);
     setMessage("Loaded Successfully !!");
-    
-    
+
     setIsProcessing(false);
   };
   useEffect(() => {
@@ -250,6 +265,16 @@ const RiskAssementForm = ({
       getBankData();
     }
   }, [bankId]);
+
+  function handleCheckboxChange(code: string, isChecked: boolean) {
+    setSelectedRows((prevSelectedRows) => {
+      if (isChecked) {
+        return [...prevSelectedRows, code];
+      } else {
+        return prevSelectedRows.filter((row) => row !== code);
+      }
+    });
+  }
 
   return (
     <div>
@@ -270,132 +295,185 @@ const RiskAssementForm = ({
                     <TableHead key={index}>{header}</TableHead>
                   ))}
 
-                  <TableHead className="text-center">Risk SubClasses</TableHead>
+                  {/* <TableHead className="text-center">Risk SubClasses</TableHead> */}
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {(banksData as bank)?.codes?.map((content, index) => (
-                  <TableRow key={index} className="border-b-2 ">
-                    <TableCell className="align-top ">
-                      <FormField
-                        control={form.control}
-                        name={
-                          content.code as
-                            | "CB"
-                            | "NRA"
-                            | "IA"
-                            | "EM"
-                            | "MSB"
-                            | "TP"
-                            | "IG"
-                            | "HR"
-                            | "HRL"
-                            | "EB"
-                            | "SV"
-                            | "CI"
-                            | "CTR"
-                            | "LC"
-                            | "CO"
-                            | "FC"
-                            | "FBAR"
-                            | "P"
-                            | "PB"
-                            | "ND"
-                            | "FT"
-                            | "CBW"
-                            | "ACH"
-                            | "MI"
-                            | "LOC_C"
-                            | "NP"
-                            | "S"
-                            | "SAR"
-                        }
-                        render={({ field }) => (
-                          <FormItem className="m-2 text-sm flex items-center justify-center ">
-                            <FormControl>
-                              <Checkbox
-                                id={`${content.code}`}
-                                className="mt-2"
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                              />
-                            </FormControl>
-                            <FormLabel className="mt-4 mx-2 items-center flex justify-center">
-                              {content.code}
-                            </FormLabel>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </TableCell>
-                    <TableCell className="align-top">
-                      {content.riskCategory.substring(0, 40)}...
-                    </TableCell>
-                    <TableCell className="align-top">
-                      {content.lowRisk.substring(0, 40)}...
-                    </TableCell>
-                    <TableCell className="align-top">
-                      {content.moderateRisk.substring(0, 40)}...
-                    </TableCell>
-                    <TableCell className="align-top">
-                      {content.highRisk.substring(0, 40)}...
-                    </TableCell>
+                  <>
+                    <TableRow key={index} className="border-b-2 ">
+                      <TableCell className="align-top ">
+                        <FormField
+                          control={form.control}
+                          name={
+                            content.code as
+                              | "CB"
+                              | "NRA"
+                              | "IA"
+                              | "EM"
+                              | "MSB"
+                              | "TP"
+                              | "IG"
+                              | "HR"
+                              | "HRL"
+                              | "EB"
+                              | "SV"
+                              | "CI"
+                              | "CTR"
+                              | "LC"
+                              | "CO"
+                              | "FC"
+                              | "FBAR"
+                              | "P"
+                              | "PB"
+                              | "ND"
+                              | "FT"
+                              | "CBW"
+                              | "ACH"
+                              | "MI"
+                              | "LOC_C"
+                              | "NP"
+                              | "S"
+                              | "SAR"
+                          }
+                          render={({ field }) => (
+                            <FormItem className="m-2 text-sm flex items-center justify-center ">
+                              <FormControl>
+                                <Checkbox
+                                  id={`${content.code}`}
+                                  className="mt-2"
+                                  checked={field.value}
+                                  onCheckedChange={(isChecked) => {
+                                    field.onChange(isChecked);
+                                    handleCheckboxChange(
+                                      content.code,
+                                      isChecked as boolean
+                                    );
+                                  }}
+                                />
+                              </FormControl>
+                              <FormLabel className="mt-4 mx-3  items-center block w-full justify-center">
+                                {content.code}
+                              </FormLabel>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </TableCell>
+                      <TableCell className="align-top">
+                        {content.riskCategory}
+                      </TableCell>
+                      <TableCell className="align-top">
+                        {lowRiskSub === content.lowRisk
+                          ? content.lowRisk
+                          : content.lowRisk.substring(0, 40)}
+                        <p
+                          className="cursor-pointer text-purple-800"
+                          onClick={() => {
+                            if (lowRiskSub === content.lowRisk) {
+                              setLowRiskSub("");
+                            } else {
+                              setLowRiskSub(content.lowRisk);
+                            }
+                          }}
+                        >
+                          {lowRiskSub === content.lowRisk ? "Less" : "...More"}
+                        </p>
+                      </TableCell>
+                      <TableCell className="align-top">
+                        {moderateRiskSub === content.moderateRisk
+                          ? content.moderateRisk
+                          : content.moderateRisk.substring(0, 40)}
+                        <p
+                          className="cursor-pointer text-purple-800"
+                          onClick={() => {
+                            if (moderateRiskSub === content.moderateRisk) {
+                              setModerateRiskSub("");
+                            } else {
+                              setModerateRiskSub(content.moderateRisk);
+                            }
+                          }}
+                        >
+                          {moderateRiskSub === content.moderateRisk
+                            ? "Less"
+                            : "...More"}
+                        </p>
+                      </TableCell>
+                      <TableCell className="align-top">
+                        {highRiskSub === content.highRisk
+                          ? content.highRisk
+                          : content.highRisk.substring(0, 40)}
+                        <p
+                          className="cursor-pointer text-purple-800"
+                          onClick={() => {
+                            if (highRiskSub === content.highRisk) {
+                              setHighRiskSub("");
+                            } else {
+                              setHighRiskSub(content.highRisk);
+                            }
+                          }}
+                        >
+                          {highRiskSub === content.highRisk
+                            ? "Less"
+                            : "...More"}
+                        </p>
+                      </TableCell>
 
-                    <TableCell className="align-top">
-                      {
-                        (banksData as bank)?.codeAnalyses.filter(
-                          (assessment) => assessment.code === content.code
-                        )[0]?.inherentRiskCategory
-                      }
-                    </TableCell>
-                    <TableCell className="align-top">
-                      {
-                        (banksData as bank)?.codeAnalyses.filter(
-                          (assessment) => assessment.code === content.code
-                        )[0]?.inherentRiskScore
-                      }
-                    </TableCell>
-                    <TableCell className="align-top">
-                      {
-                        (banksData as bank)?.codeAnalyses.filter(
-                          (assessment) => assessment.code === content.code
-                        )[0]?.mitigatingControl
-                      }
-                    </TableCell>
-                    <TableCell className="align-top">
-                      {
-                        (banksData as bank)?.codeAnalyses.filter(
-                          (assessment) => assessment.code === content.code
-                        )[0]?.mitigatingControlScore
-                      }
-                    </TableCell>
-                    <TableCell className="align-top">
-                      {
-                        (banksData as bank)?.codeAnalyses.filter(
-                          (assessment) => assessment.code === content.code
-                        )[0]?.residualRiskScore
-                      }
-                    </TableCell>
-                    <TableCell className="align-top">
-                      {
-                        (banksData as bank)?.codeAnalyses.filter(
-                          (assessment) => assessment.code === content.code
-                        )[0]?.documentUsedForAnalysis
-                      }
-                    </TableCell>
-                    <TableCell className="align-top w-[600px]">
-                      <Textarea
-                        rows={6}
-                        cols={6}
-                        className="w-[300px]"
-                        value={
+                      <TableCell className="align-top">
+                        {
                           (banksData as bank)?.codeAnalyses.filter(
                             (assessment) => assessment.code === content.code
-                          )[0]?.comments
+                          )[0]?.inherentRiskCategory
                         }
-                      />
-                    </TableCell>
-                    <TableCell>
+                      </TableCell>
+                      <TableCell className="align-top">
+                        {
+                          (banksData as bank)?.codeAnalyses.filter(
+                            (assessment) => assessment.code === content.code
+                          )[0]?.inherentRiskScore
+                        }
+                      </TableCell>
+                      {/* <TableCell className="align-top">
+                        {
+                          (banksData as bank)?.codeAnalyses.filter(
+                            (assessment) => assessment.code === content.code
+                          )[0]?.mitigatingControl
+                        }
+                      </TableCell>
+                      <TableCell className="align-top">
+                        {
+                          (banksData as bank)?.codeAnalyses.filter(
+                            (assessment) => assessment.code === content.code
+                          )[0]?.mitigatingControlScore
+                        }
+                      </TableCell>
+                      <TableCell className="align-top">
+                        {
+                          (banksData as bank)?.codeAnalyses.filter(
+                            (assessment) => assessment.code === content.code
+                          )[0]?.residualRiskScore
+                        }
+                      </TableCell> */}
+                      <TableCell className="align-top">
+                        {
+                          (banksData as bank)?.codeAnalyses.filter(
+                            (assessment) => assessment.code === content.code
+                          )[0]?.documentUsedForAnalysis
+                        }
+                      </TableCell>
+                      <TableCell className="align-top w-[600px]">
+                        <Textarea
+                          rows={6}
+                          cols={6}
+                          className="w-[300px]"
+                          value={
+                            (banksData as bank)?.codeAnalyses.filter(
+                              (assessment) => assessment.code === content.code
+                            )[0]?.comments
+                          }
+                        />
+                      </TableCell>
+                      {/* <TableCell>
                       <Table className="h-full overflow-scroll">
                         <TableHeader>
                           <TableRow className="bg-black text-white">
@@ -440,8 +518,109 @@ const RiskAssementForm = ({
                           ))}
                         </TableBody>
                       </Table>
-                    </TableCell>
-                  </TableRow>
+                    </TableCell> */}
+                    </TableRow>
+
+                    {selectedRows.includes(content.code as never) && (
+                      <TableRow key={index} className="border-b-2 mx-10">
+                        <TableCell colSpan={12} className="p-0">
+                          <Table className="h-full overflow-scroll">
+                            <TableHeader>
+                              <TableRow className="bg-gray-300 text-black ">
+                                <TableHead className="text-black">
+                                  SubCode
+                                </TableHead>
+                                <TableHead className="text-black">
+                                  Category
+                                </TableHead>
+                                <TableHead className="text-black">
+                                  Strong(3)
+                                </TableHead>
+                                <TableHead className="text-black">
+                                  Adequate(2)
+                                </TableHead>
+                                <TableHead className="text-black">
+                                  Weak(1)
+                                </TableHead>
+                                <TableHead className="text-black">
+                                  Score
+                                </TableHead>
+                                <TableHead className="text-black">
+                                  Mitigating Control
+                                </TableHead>
+                                <TableHead className="text-black">
+                                  Mitigating Control Score
+                                </TableHead>
+                                <TableHead className="text-black">
+                                  Residual Risk
+                                </TableHead>
+                                <TableHead className="text-black">
+                                  Comments
+                                </TableHead>
+                                <TableHead className="text-black">
+                                  Documents
+                                </TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {content.subclasses?.map((subcode, subIndex) => (
+                                <TableRow key={subIndex}>
+                                  <TableCell className="align-top">
+                                    {subcode.subcode}
+                                  </TableCell>
+                                  <TableCell className="align-top">
+                                    {subcode.category}
+                                  </TableCell>
+                                  <TableCell className="align-top">
+                                    {subcode.strong}
+                                  </TableCell>
+                                  <TableCell className="align-top">
+                                    {subcode.adequate}
+                                  </TableCell>
+                                  <TableCell className="align-top">
+                                    {subcode.weak}
+                                  </TableCell>
+                                  <TableCell className="align-top">
+                                    {subcode.score}
+                                  </TableCell>
+                                  <TableCell className="align-top">
+                                    {
+                                      (banksData as bank)?.codeAnalyses.filter(
+                                        (assessment) =>
+                                          assessment.code === content.code
+                                      )[0]?.mitigatingControl
+                                    }
+                                  </TableCell>
+                                  <TableCell className="align-top">
+                                    {
+                                      (banksData as bank)?.codeAnalyses.filter(
+                                        (assessment) =>
+                                          assessment.code === content.code
+                                      )[0]?.mitigatingControlScore
+                                    }
+                                  </TableCell>
+                                  <TableCell className="align-top">
+                                    {
+                                      (banksData as bank)?.codeAnalyses.filter(
+                                        (assessment) =>
+                                          assessment.code === content.code
+                                      )[0]?.residualRiskScore
+                                    }
+                                  </TableCell>
+                                  <TableCell className="align-top">
+                                    {subcode.comments}
+                                  </TableCell>
+                                  <TableCell className="align-top">
+                                    {subcode.documents}
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </>
                 ))}
               </TableBody>
             </Table>

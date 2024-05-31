@@ -68,9 +68,9 @@ export const table_header = [
   "High Risk",
   "Inherent Risk",
   "Inherent Risk Score",
-  "Migrating Control",
-  "Migrating Control Score",
-  "Residual Risk",
+  // "Migrating Control",
+  // "Migrating Control Score",
+  // "Residual Risk",
   "Document Used for Analysis",
   "Comments",
 ];
