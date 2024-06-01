@@ -237,11 +237,12 @@ const RiskAssementForm = ({
             getBankData();
             router.refresh();
           });
+        } else {
+          toast({
+            title: "Nework Error occured during analysis",
+            description: `${code.code} Code Analysis Incomplete, Kindly perform the analysis again .`,
+          });
         }
-        toast({
-          title: "Nework Error occured during analysis",
-          description: `${code.code} Code Analysis Incomplete, Kindly perform the analysis again .`,
-        });
       });
     }
   };
