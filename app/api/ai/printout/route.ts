@@ -3,6 +3,30 @@ import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 
+function wrapText(text: string, lineLength: number): string {
+  const lines = text.split('\n');
+  const wrappedLines = lines.map(line => {
+    if (line.startsWith('**') && line.endsWith('**')) {
+      return line;
+    }
+    let wrappedLine = '';
+    while (line.length > lineLength) {
+      let wrapAt = line.lastIndexOf(' ', lineLength);
+      if (wrapAt === -1) wrapAt = lineLength;
+      wrappedLine += line.slice(0, wrapAt) + '\n';
+      line = line.slice(wrapAt).trim();
+    }
+    wrappedLine += line;
+    return wrappedLine;
+  });
+  return wrappedLines.join('\n');
+}
+
+function saveFormattedTextToFile(filePath: string, content: string) {
+  const formattedContent = wrapText(content, 72);
+  fs.writeFileSync(filePath, formattedContent);
+}
+
 export async function POST(req: NextRequest) {
   try {
     // const code_data= {code: "NRA",
@@ -24,10 +48,10 @@ export async function POST(req: NextRequest) {
     const data = await res.data;
     const response = data.response;
 
-    fs.writeFileSync(
-      `public/files/${body.bankName.replaceAll(" ", "")}_PrintOut.txt`,
-      response
-    );
+
+    saveFormattedTextToFile(`public/files/${body.bankName.replaceAll(" ", "")}_PrintOut.txt`, response);
+
+    
 
     exec(
       `python pdf_convertor.py  public/files/${body.bankName.replaceAll(

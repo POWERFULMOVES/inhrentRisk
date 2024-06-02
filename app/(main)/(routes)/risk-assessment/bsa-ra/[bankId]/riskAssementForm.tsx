@@ -235,7 +235,7 @@ const RiskAssementForm = ({
             });
             setIsProcessing(false);
             getBankData();
-            router.refresh();
+            
           });
         } else {
           toast({
@@ -245,6 +245,7 @@ const RiskAssementForm = ({
         }
       });
     }
+    router.refresh();
   };
 
   const getBankData = async () => {

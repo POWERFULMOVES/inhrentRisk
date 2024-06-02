@@ -18,8 +18,15 @@ pdf.set_font("Arial", size=15)
 
 # Open the provided file
 with open(args.filename, "r") as f:
-    for x in f:
-        pdf.cell(200, 10, txt=x, ln=1)
+    for line in f:
+        if line.startswith("**") and line.endswith("**\n"):
+            # Remove the surrounding '**' and strip any leading/trailing whitespace
+            heading = line.strip()[2:-2].strip()
+            pdf.set_font("Arial", 'B', size=15)  # Set font to bold
+            pdf.cell(200, 10, txt=heading, ln=1)
+            pdf.set_font("Arial", size=15)  # Reset font to regular
+        else:
+            pdf.cell(200, 10, txt=line.strip(), ln=1)
 
-# Save the pdf with name .pdf
+# Save the pdf with the specified name
 pdf.output(args.output)
