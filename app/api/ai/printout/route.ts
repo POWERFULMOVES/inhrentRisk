@@ -1,4 +1,4 @@
-import { create_print_out_prompt } from "@/models/prompt_structure";
+import { exec } from "child_process";
 import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
@@ -27,6 +27,25 @@ export async function POST(req: NextRequest) {
     fs.writeFileSync(
       `public/files/${body.bankName.replaceAll(" ", "")}_PrintOut.txt`,
       response
+    );
+
+    exec(
+      `python pdf_convertor.py  public/files/${body.bankName.replaceAll(
+        " ",
+        ""
+      )}_PrintOut.txt --output public/files/${body.bankName.replaceAll(
+        " ",
+        ""
+      )}_PrintOut.pdf`,
+      (error, stdout, stderr) => {
+        if (error) {
+          console.log(`error: ${error.message}`);
+        } else if (stderr) {
+          console.log(`stderr: ${stderr}`);
+        } else {
+          console.log(stdout);
+        }
+      }
     );
 
     // const doc = new jsPDF();
